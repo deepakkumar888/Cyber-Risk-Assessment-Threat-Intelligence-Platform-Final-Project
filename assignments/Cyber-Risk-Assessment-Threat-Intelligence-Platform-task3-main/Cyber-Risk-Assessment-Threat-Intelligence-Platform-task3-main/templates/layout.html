@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Web Risk Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="top-header">
+    <h1>Web Application Risk Dashboard</h1>
+    <p class="subtitle">Assignment 3 – Vulnerability Scanner, Risk Evaluation & Alerts</p>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <small>For academic use only – scan only test or lab targets.</small>
+  </footer>
+</body>
+</html>

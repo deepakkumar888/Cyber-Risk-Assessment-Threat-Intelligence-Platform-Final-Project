@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<section class="scan-form">
+  <form method="post">
+    <label for="target">Target URL (test/lab only):</label>
+    <input type="text" id="target" name="target" placeholder="http://testphp.vulnweb.com" required>
+    <button type="submit">Run Scan</button>
+  </form>
+  {% if error %}
+    <div class="error-box">{{ error }}</div>
+  {% endif %}
+</section>
+
+{% if scan %}
+<section class="summary">
+  <h2>Scan Summary</h2>
+  {% set risk_class = 'low' %}
+  {% if scan.overall_score >= 7 %}
+    {% set risk_class = 'high' %}
+  {% elif scan.overall_score >= 3 %}
+    {% set risk_class = 'medium' %}
+  {% endif %}
+  <div class="summary-card risk-{{ risk_class }}">
+    <div><strong>Target:</strong> {{ scan.target }}</div>
+    <div><strong>Timestamp (UTC):</strong> {{ scan.timestamp }}</div>
+    <div><strong>Overall Risk Score:</strong> {{ scan.overall_score }}</div>
+  </div>
+</section>
+
+{% set counts = {'Critical':0, 'High':0, 'Medium':0, 'Low':0, 'Informational':0} %}
+{% for f in scan.findings %}
+  {% set _ = counts.__setitem__(f.severity, counts[f.severity] + 1) %}
+{% endfor %}
+
+<section class="severity-section">
+  <h2>Severity Distribution</h2>
+  <div class="bars">
+    {% for level, count in counts.items() %}
+      <div class="bar-row">
+        <div class="bar-label">{{ level }} ({{ count }})</div>
+        <div class="bar-outer">
+          <div class="bar-inner bar-{{ level|lower }}" style="width: {{ 25 + count * 30 }}px;"></div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="findings-section">
+  <h2>Detailed Findings</h2>
+  {% if scan.findings %}
+  <table class="findings-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Severity</th>
+        <th>Score</th>
+        <th>Description</th>
+        <th>Recommended Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in scan.findings %}
+      <tr>
+        <td>{{ f.name }}</td>
+        <td><span class="badge badge-{{ f.severity|lower }}">{{ f.severity }}</span></td>
+        <td>{{ f.score }}</td>
+        <td>{{ f.description }}</td>
+        <td>{{ f.recommended_action }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>No issues detected.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% endblock %}
